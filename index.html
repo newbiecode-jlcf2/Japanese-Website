@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Jp Trainer Pro</title>
+    <style>
+        :root { 
+            --primary: #2c3e50; 
+            --accent: #e74c3c; 
+            --bg: #f8f9fa; 
+            --card-bg: #ffffff;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Meiryo", sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: flex-start; 
+            min-height: 100vh; 
+            background: var(--bg); 
+            margin: 0; 
+            padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom) 20px;
+            box-sizing: border-box;
+        }
+
+        /* Responsive Chapter Menu */
+        .chapter-container { 
+            margin-top: 20px;
+            margin-bottom: 20px; 
+            display: flex; 
+            gap: 10px; 
+            overflow-x: auto; 
+            width: 100%;
+            padding: 10px 5px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .chapter-container::-webkit-scrollbar { display: none; }
+
+        .chapter-btn { 
+            flex: 0 0 auto;
+            padding: 12px 20px; 
+            background: var(--card-bg); 
+            border: 2px solid var(--primary); 
+            border-radius: 25px; 
+            cursor: pointer; 
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--primary);
+            transition: 0.2s;
+        }
+        .chapter-btn.active { background: var(--primary); color: white; }
+
+        /* Card Design */
+        .card {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 500px; 
+            height: 45vh;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            border-radius: 24px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            cursor: pointer; 
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.1s ease;
+        }
+        .card:active { transform: scale(0.96); }
+
+        #word-display { 
+            font-size: clamp(80px, 25vw, 150px); 
+            font-weight: 800; 
+            color: var(--primary); 
+            margin: 0; 
+        }
+        
+        #romaji-display { 
+            font-size: 32px; 
+            color: var(--accent); 
+            margin-top: 15px;
+            font-weight: 600;
+            opacity: 0; 
+            transition: opacity 0.2s;
+        }
+        #romaji-display.visible { opacity: 1; }
+
+        .next-btn { 
+            margin-top: auto;
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px; 
+            font-size: 22px; 
+            font-weight: bold;
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 20px; 
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chapter-container" id="chapter-menu"></div>
+
+    <div class="card" onclick="showAnswer()">
+        <p id="word-display">Ready?</p>
+        <p id="romaji-display">---</p>
+    </div>
+
+    <button class="next-btn" onclick="nextWord()">Next Word →</button>
+
+    <script>
+        const chapters = {
+            "Chapter 1: 五十音": [
+{ jp: "あ", ro: "a" },
+{ jp: "い", ro: "i" },
+{ jp: "う", ro: "u" },
+{ jp: "え", ro: "e" },
+{ jp: "お", ro: "o" },
+{ jp: "か", ro: "ka" },
+{ jp: "き", ro: "ki" },
+{ jp: "く", ro: "ku" },
+{ jp: "け", ro: "ke" },
+{ jp: "こ", ro: "ko" },
+{ jp: "さ", ro: "sa" },
+{ jp: "し", ro: "shi" },
+{ jp: "す", ro: "su" },
+{ jp: "せ", ro: "se" },
+{ jp: "そ", ro: "so" },
+{ jp: "た", ro: "ta" },
+{ jp: "ち", ro: "chi" },
+{ jp: "つ", ro: "tsu" },
+{ jp: "て", ro: "te" },
+{ jp: "と", ro: "to" },
+{ jp: "な", ro: "na" },
+{ jp: "に", ro: "ni" },
+{ jp: "ぬ", ro: "nu" },
+{ jp: "ね", ro: "ne" },
+{ jp: "の", ro: "no" },
+{ jp: "は", ro: "ha" },
+{ jp: "ひ", ro: "hi" },
+{ jp: "ふ", ro: "fu" },
+{ jp: "へ", ro: "he" },
+{ jp: "ほ", ro: "ho" },
+{ jp: "ま", ro: "ma" },
+{ jp: "み", ro: "mi" },
+{ jp: "む", ro: "mu" },
+{ jp: "め", ro: "me" },
+{ jp: "も", ro: "mo" },
+{ jp: "や", ro: "ya" },
+{ jp: "ゆ", ro: "yu" },
+{ jp: "よ", ro: "yo" },
+{ jp: "ら", ro: "ra" },
+{ jp: "り", ro: "ri" },
+{ jp: "る", ro: "ru" },
+{ jp: "れ", ro: "re" },
+{ jp: "ろ", ro: "ro" },
+{ jp: "わ", ro: "wa" },
+{ jp: "を", ro: "wo" },
+{ jp: "ん", ro: "n" },
+{ jp: "ア", ro: "a" },
+{ jp: "イ", ro: "i" },
+{ jp: "ウ", ro: "u" },
+{ jp: "エ", ro: "e" },
+{ jp: "オ", ro: "o" },
+{ jp: "カ", ro: "ka" },
+{ jp: "キ", ro: "ki" },
+{ jp: "ク", ro: "ku" },
+{ jp: "ケ", ro: "ke" },
+{ jp: "コ", ro: "ko" },
+{ jp: "サ", ro: "sa" },
+{ jp: "シ", ro: "shi" },
+{ jp: "ス", ro: "su" },
+{ jp: "セ", ro: "se" },
+{ jp: "ソ", ro: "so" },
+{ jp: "タ", ro: "ta" },
+{ jp: "チ", ro: "chi" },
+{ jp: "ツ", ro: "tsu" },
+{ jp: "テ", ro: "te" },
+{ jp: "ト", ro: "to" },
+{ jp: "ナ", ro: "na" },
+{ jp: "ニ", ro: "ni" },
+{ jp: "ヌ", ro: "nu" },
+{ jp: "ネ", ro: "ne" },
+{ jp: "ノ", ro: "no" },
+{ jp: "ハ", ro: "ha" },
+{ jp: "ヒ", ro: "hi" },
+{ jp: "フ", ro: "fu" },
+{ jp: "ヘ", ro: "he" },
+{ jp: "ホ", ro: "ho" },
+{ jp: "マ", ro: "ma" },
+{ jp: "ミ", ro: "mi" },
+{ jp: "ム", ro: "mu" },
+{ jp: "メ", ro: "me" },
+{ jp: "モ", ro: "mo" },
+{ jp: "ヤ", ro: "ya" },
+{ jp: "ユ", ro: "yu" },
+{ jp: "ヨ", ro: "yo" },
+{ jp: "ラ", ro: "ra" },
+{ jp: "リ", ro: "ri" },
+{ jp: "ル", ro: "ru" },
+{ jp: "レ", ro: "re" },
+{ jp: "ロ", ro: "ro" },
+{ jp: "ワ", ro: "wa" },
+{ jp: "ヲ", ro: "wo" },
+{ jp: "ン", ro: "n" },
+
+            ],
+            "Chapter 2: 濁音，半濁音和拗音 ": [
+{ jp: "が", ro: "ga" },
+{ jp: "ぎ", ro: "gi" },
+{ jp: "ぐ", ro: "gu" },
+{ jp: "げ", ro: "ge" },
+{ jp: "ご", ro: "go" },
+{ jp: "ざ", ro: "za" },
+{ jp: "じ", ro: "ji" },
+{ jp: "ず", ro: "zu" },
+{ jp: "ぜ", ro: "ze" },
+{ jp: "ぞ", ro: "zo" },
+{ jp: "だ", ro: "da" },
+{ jp: "ぢ", ro: "ji" },
+{ jp: "づ", ro: "zu" },
+{ jp: "で", ro: "de" },
+{ jp: "ど", ro: "do" },
+{ jp: "ば", ro: "ba" },
+{ jp: "び", ro: "bi" },
+{ jp: "ぶ", ro: "bu" },
+{ jp: "べ", ro: "be" },
+{ jp: "ぼ", ro: "bo" },
+{ jp: "ぱ", ro: "pa" },
+{ jp: "ぴ", ro: "pi" },
+{ jp: "ぷ", ro: "pu" },
+{ jp: "ぺ", ro: "pe" },
+{ jp: "ぽ", ro: "po" },
+{ jp: "きゃ", ro: "kya" },
+{ jp: "きゅ", ro: "kyu" },
+{ jp: "きょ", ro: "kyo" },
+{ jp: "しゃ", ro: "sha" },
+{ jp: "しゅ", ro: "shu" },
+{ jp: "しょ", ro: "sho" },
+{ jp: "ちゃ", ro: "cha" },
+{ jp: "ちゅ", ro: "chu" },
+{ jp: "ちょ", ro: "cho" },
+{ jp: "にゃ", ro: "nya" },
+{ jp: "にゅ", ro: "nyu" },
+{ jp: "にょ", ro: "nyo" },
+{ jp: "ひゃ", ro: "hya" },
+{ jp: "ひゅ", ro: "hyu" },
+{ jp: "ひょ", ro: "hyo" },
+{ jp: "みゃ", ro: "mya" },
+{ jp: "みゅ", ro: "myu" },
+{ jp: "みょ", ro: "myo" },
+{ jp: "りゃ", ro: "rya" },
+{ jp: "りゅ", ro: "ryu" },
+{ jp: "りょ", ro: "ryo" },
+{ jp: "ぎゃ", ro: "gya" },
+{ jp: "ぎゅ", ro: "gyu" },
+{ jp: "ぎょ", ro: "gyo" },
+{ jp: "じゃ", ro: "ja" },
+{ jp: "じゅ", ro: "ju" },
+{ jp: "じょ", ro: "jo" },
+{ jp: "びゃ", ro: "bya" },
+{ jp: "びゅ", ro: "byu" },
+{ jp: "びょ", ro: "byo" },
+{ jp: "ぴゃ", ro: "pya" },
+{ jp: "ぴゅ", ro: "pyu" },
+{ jp: "ぴょ", ro: "pyo" },
+            ]
+
+        };
+
+        let currentChapter = Object.keys(chapters)[0];
+        let currentWord = {};
+
+        function initMenu() {
+            const menu = document.getElementById('chapter-menu');
+            menu.innerHTML = ""; 
+            Object.keys(chapters).forEach(name => {
+                const btn = document.createElement('button');
+                btn.innerText = name;
+                btn.className = `chapter-btn ${name === currentChapter ? 'active' : ''}`;
+                btn.onclick = () => selectChapter(name);
+                menu.appendChild(btn);
+            });
+        }
+
+        function selectChapter(name) {
+            currentChapter = name;
+            initMenu();
+            nextWord();
+        }
+
+        function nextWord() {
+            const db = chapters[currentChapter];
+            currentWord = db[Math.floor(Math.random() * db.length)];
+            document.getElementById('word-display').innerText = currentWord.jp;
+            document.getElementById('romaji-display').innerText = currentWord.ro;
+            document.getElementById('romaji-display').classList.remove('visible');
+        }
+
+        function showAnswer() {
+            document.getElementById('romaji-display').classList.add('visible');
+        }
+
+        window.onload = () => { initMenu(); nextWord(); };
+    </script>
+</body>
+</html>
