@@ -298,21 +298,20 @@
         }
 
         function nextWord() {
-            const db = chapters[currentChapter];
-            if (!db || db.length === 0) return;
+    const db = chapters[currentChapter];
+    if (!db || db.length === 0) return;
 
-            // 1. 第一步：先立即隱藏羅馬拼音（移除 visible class）
-            const romajiElement = document.getElementById('romaji-display');
-            romajiElement.classList.remove('visible');
+    // 1. 立即移除 visible 類別（因為 CSS 修改了，現在會瞬間消失）
+    const romajiElement = document.getElementById('romaji-display');
+    romajiElement.classList.remove('visible');
 
-            // 2. 第二步：挑選新單字
-            currentWord = db[Math.floor(Math.random() * db.length)];
-            
-            // 3. 第三步：更新文字內容
-            document.getElementById('word-display').innerText = currentWord.jp;
-            romajiElement.innerText = currentWord.ro;
-        }
-
+    // 2. 隨機選取下一個單字
+    currentWord = db[Math.floor(Math.random() * db.length)];
+    
+    // 3. 更新內容：先將羅馬拼音清空或更新，避免殘留
+    document.getElementById('word-display').innerText = currentWord.jp;
+    romajiElement.innerText = currentWord.ro;
+}
         function showAnswer() {
             document.getElementById('romaji-display').classList.add('visible');
         }
@@ -321,3 +320,4 @@
     </script>
 </body>
 </html>
+
