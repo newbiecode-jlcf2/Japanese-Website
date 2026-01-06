@@ -78,18 +78,16 @@
             margin: 0; 
         }
         
-       #romaji-display { 
-    font-size: 32px; 
-    color: var(--accent); 
-    margin-top: 15px;
-    font-weight: 600;
-    opacity: 0; 
-    /* 這裡刪除原本的 transition: opacity 0.2s; */
-}
-       #romaji-display.visible { 
-    opacity: 1; 
-    transition: opacity 0.2s ease-in; 
-}
+        #romaji-display { 
+            font-size: 32px; 
+            color: var(--accent); 
+            margin-top: 15px;
+            font-weight: 600;
+            opacity: 0; 
+            transition: opacity 0.2s;
+        }
+        #romaji-display.visible { opacity: 1; }
+
         .next-btn { 
             margin-top: auto;
             margin-bottom: 30px;
@@ -280,20 +278,21 @@
 
         let currentChapter = Object.keys(chapters)[0];
         let currentWord = {};
-        let wordQueue = []; // 用來存放打亂後的索引隊列
 
-        // 洗牌函式：將陣列順序隨機打亂
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
+        function initMenu() {
+            const menu = document.getElementById('chapter-menu');
+            menu.innerHTML = ""; 
+            Object.keys(chapters).forEach(name => {
+                const btn = document.createElement('button');
+                btn.innerText = name;
+                btn.className = `chapter-btn ${name === currentChapter ? 'active' : ''}`;
+                btn.onclick = () => selectChapter(name);
+                menu.appendChild(btn);
+            });
         }
 
         function selectChapter(name) {
             currentChapter = name;
-            wordQueue = []; // 切換章節時清空隊列
             initMenu();
             nextWord();
         }
@@ -302,21 +301,14 @@
             const db = chapters[currentChapter];
             if (!db || db.length === 0) return;
 
-            // 如果隊列空了，重新生成一個打亂的索引清單
-            if (wordQueue.length === 0) {
-                // 建立一個 0 到 db.length-1 的數字陣列並打亂
-                wordQueue = shuffle([...Array(db.length).keys()]);
-            }
-
-            // 從隊列中取出下一個索引
-            const nextIndex = wordQueue.pop();
-            currentWord = db[nextIndex];
-
-            // 處理羅馬拼音顯示邏輯（解決你之前的太早出現問題）
+            // 1. 第一步：先立即隱藏羅馬拼音（移除 visible class）
             const romajiElement = document.getElementById('romaji-display');
             romajiElement.classList.remove('visible');
 
-            // 更新文字內容
+            // 2. 第二步：挑選新單字
+            currentWord = db[Math.floor(Math.random() * db.length)];
+            
+            // 3. 第三步：更新文字內容
             document.getElementById('word-display').innerText = currentWord.jp;
             romajiElement.innerText = currentWord.ro;
         }
@@ -328,7 +320,4 @@
         window.onload = () => { initMenu(); nextWord(); };
     </script>
 </body>
-
 </html>
-
-
