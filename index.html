@@ -78,15 +78,21 @@
             margin: 0; 
         }
         
-        #romaji-display { 
-            font-size: 32px; 
-            color: var(--accent); 
-            margin-top: 15px;
-            font-weight: 600;
-            opacity: 0; 
-            transition: opacity 0.2s;
-        }
-        #romaji-display.visible { opacity: 1; }
+        /* 1. 預設狀態：完全透明，且「不設定」動畫時間 */
+#romaji-display { 
+    font-size: 32px; 
+    color: var(--accent); 
+    margin-top: 15px;
+    font-weight: 600;
+    opacity: 0; 
+    /* 這裡刪除原本的 transition: opacity 0.2s; */
+}
+
+/* 2. 顯示狀態：加上 visible 時，才啟動 0.2 秒的淡入動畫 */
+#romaji-display.visible { 
+    opacity: 1; 
+    transition: opacity 0.2s ease-in; 
+}
 
         .next-btn { 
             margin-top: auto;
@@ -320,4 +326,5 @@
     </script>
 </body>
 </html>
+
 
